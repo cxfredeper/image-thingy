@@ -1,58 +1,50 @@
 package codec
 
 import (
-	"io";
-	. "image";
-	"math";
+	img "image"
+	"math"
 )
 
 
-const HeaderSize = 4
+// Embed arbitrary bytes into an image.
+// The resulting image pixels buffer contains a 4 bytes header
+// for the length of the payload, followed by the payload itself,
+// then optionally extra padding to be disgarded.
+func Encode(payload []byte) (m *img.NRGBA, err error) {
+	header := BuildHeader(payload)
+	bytesLen := len(header) + len(payload)
 
-func BuildHeader(src []byte) []byte {
-	length := uint(len(src))
-	header := make([]byte, 4)
-	header[0] = byte(0xff & length)
-	header[1] = byte(0xff & (length >> 8))
-	header[2] = byte(0xff & (length >> 16))
-	header[3] = byte(0xff & (length >> 24))
-	return header
-}
-
-
-func ExtractHeader(data []byte) uint {
-	return uint(data[0] | data[1] << 8 | data[2] << 16 | data[3] << 24)
-}
-
-
-func WritePacket(dst io.Writer, payload []byte) (n int, err error) {
-	if n, err = dst.Write(BuildHeader(payload)); err != nil {
-		return
-	}
-	m, err := dst.Write(payload)
-	return n + m, err
-}
-
-
-func Encode(payload []byte) (img Image, err error) {
-	bytesLen := uint(len(payload)) + HeaderSize
+	// Generate a square image.
 	// We can store 4 bytes in each pixel.
 	stride := int(math.Ceil(math.Sqrt(float64(bytesLen / 4))))
 
 	// This allocates the image buffer; we write to it directly.
-	nrgba := NewNRGBA(Rect(0, 0, stride, stride))
-	n, err := WritePacket(SliceWriter[byte]{Buf: nrgba.Pix}, payload)
+	m = img.NewNRGBA(img.Rect(0, 0, stride, stride))
+	buf := SliceWriter[byte]{Buf: m.Pix}
+	_, err = buf.Write(header)
+	if err != nil { return }
+	_, err = buf.Write(payload)
+	if err != nil { return }
 
 	// Debug: mark all the unused extra pixels red.
-	_ = n
 	/*
-	for i := (n &^ 0b11) + 4; i < len(nrgba.Pix); i += 4 {
-		nrgba.Pix[i] = 0xff
-		nrgba.Pix[i+1] = 0
-		nrgba.Pix[i+2] = 0
-		nrgba.Pix[i+3] = 0xff
+	println(len(header))
+	println(len(payload))
+	n := len(header) + len(payload)
+	for i := (n &^ 0b11) + 4; i < len(m.Pix); i += 4 {
+		m.Pix[i] = 0xff
+		m.Pix[i+1] = 0
+		m.Pix[i+2] = 0
+		m.Pix[i+3] = 0xff
 	}
 	*/
 
-	return nrgba, err
+	return
+}
+
+
+// Extracts the payload bytes embedded in the image pixels buffer.
+// The returned slice will be backed by the same image buffer.
+func Decode(m *img.NRGBA) (payload []byte, err error) {
+	return ExtractPayload(m.Pix)
 }

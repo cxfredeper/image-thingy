@@ -6,7 +6,7 @@ type SliceWriter[E any] struct {
 	Buf []E
 }
 
-func (w SliceWriter[E]) Write(p []E) (n int, err error) {
+func (w *SliceWriter[E]) Write(p []E) (n int, err error) {
 	if w.Index >= len(w.Buf) {
 		return
 	}
