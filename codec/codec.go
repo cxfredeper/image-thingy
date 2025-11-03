@@ -1,7 +1,9 @@
 package codec
 
 import (
+	"bytes"
 	img "image"
+	"image/png"
 	"math"
 )
 
@@ -42,9 +44,30 @@ func Encode(payload []byte) (m *img.NRGBA, err error) {
 	return
 }
 
+func EncodePNG(payload []byte) ([]byte, error) {
+	m, err := Encode(payload)
+	if err != nil {
+		return nil, err
+	}
+
+	var buf bytes.Buffer
+	encoder := png.Encoder{CompressionLevel: png.NoCompression}
+	err = encoder.Encode(&buf, m)
+	return buf.Bytes(), err
+}
+
 
 // Extracts the payload bytes embedded in the image pixels buffer.
 // The returned slice will be backed by the same image buffer.
 func Decode(m *img.NRGBA) (payload []byte, err error) {
 	return ExtractPayload(m.Pix)
+}
+
+
+func DecodePNG(pngData []byte) ([]byte, error) {
+	m, err := png.Decode(bytes.NewBuffer(pngData))
+	if err != nil {
+		return nil, err
+	}
+	return Decode(m.(*img.NRGBA))
 }

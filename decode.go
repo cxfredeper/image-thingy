@@ -3,8 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/cxfredeper/image-thingy/codec"
-	"image"
-	"image/png"
+	"io"
 	"os"
 	"strings"
 )
@@ -18,7 +17,7 @@ func main() {
 
 	// Open input file.
 	path := os.Args[1]
-	file, err := os.Open(path)
+	imgFile, err := os.Open(path)
 	if err != nil { panic(err) }
 
 	// Prepare output file.
@@ -31,11 +30,11 @@ func main() {
 	if err != nil { panic(err) }
 
 	// Decode
-	img, err := png.Decode(file)
+	imgData, err := io.ReadAll(imgFile)
 	if err != nil { panic(err) }
-	file.Close()
+	imgFile.Close()
 
-	payload, err := codec.Decode(img.(*image.NRGBA))
+	payload, err := codec.DecodePNG(imgData)
 	if err != nil { panic(err) }
 
 	_, err = outFile.Write(payload)

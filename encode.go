@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/cxfredeper/image-thingy/codec"
-	"image/png"
 	"io"
 	"os"
 )
@@ -22,14 +21,13 @@ func main() {
 	if err != nil { panic(err) }
 	file.Close()
 
-	img, err := codec.Encode(content)
-	if err != nil { panic(err) }
-
 	pngFile, err := os.Create(path + ".png")
 	if err != nil { panic(err) }
 
-	encoder := png.Encoder{CompressionLevel: png.NoCompression}
-	err = encoder.Encode(pngFile, img)
+	png, err := codec.EncodePNG(content)
+	if err != nil { panic(err) }
+
+	_, err = pngFile.Write(png)
 	if err != nil { panic(err) }
 	pngFile.Close()
 }
