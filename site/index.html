@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>File <-> Image</title>
+  <link href="index.css" rel="stylesheet" />
+  <!--<script type="module">
+    import UPNG from "https://cdn.skypack.dev/upng-js@2.1.0"; window.UPNG = UPNG;
+  </script>-->
+  <script src="wasm_exec.js"></script>
+  <script src="index.js"></script>
+</head>
+
+
+<body>
+	<!-- Tabs header -->
+	<div id="header-tabs">
+		<button class="active" id="header-btn-encode" onclick="openEncodeTab()">ENCODE</button>
+		<button class="inactive" id="header-btn-decode" onclick="openDecodeTab()">DECODE</button>
+	</div>
+
+<div class="tab-content" id="encode-tab">
+<h1>File to image encode thingy</h1>
+<p>
+	Simple tool to encode arbitrary bytes to an image.
+	Will break for files larger than 2^32 - 1 bytes (~4 GB).
+</p>
+
+<h2>Choose your file</h2>
+<input type="file" id="encode-in"></input>
+
+<h2>Encode</h2>
+<input class="submit-btn" type="button" value="encode" onclick="generateImage();" disabled />
+
+<h2 id="encode-out-header" style="display: none;">Here's your image</h2>
+<img id="encode-out"></img>
+</div>
+
+
+<div class="tab-content" id="decode-tab" style="display: none;">
+<h1>Image to file decode thingy</h1>
+<p>
+	The inverse of encode.
+	Takes an image encoded with that thing and extracts the original file.
+</p>
+
+<h2>Choose the image</h2>
+<input type="file" id="decode-in" accept="image/*"></input>
+
+<h2>Decode</h2>
+<input class="submit-btn" type="button" value="decode" onclick="generateFile();" disabled />
+
+<a id="decode-out" style="display: none;"><h2>Here's your file</h2></a>
+</div>
+
+</body>
+</html>
