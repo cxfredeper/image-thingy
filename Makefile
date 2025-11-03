@@ -2,7 +2,7 @@ encode decode: %: %.go $(wildcard codec/*.go)
 	go build $<
 
 .PHONY: wasm
-wasm: site/codec.wasm
+wasm: docs/codec.wasm
 
-site/codec.wasm: wasm.go $(wildcard codec/*.go)
-	tinygo build -target wasm -o $@ $<
+docs/codec.wasm: wasm.go $(wildcard codec/*.go)
+	tinygo build -no-debug -target wasm -o $@ $<
